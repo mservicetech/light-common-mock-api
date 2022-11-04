@@ -1,0 +1,64 @@
+#server.environment: dev
+server.serviceId: mservicetech_mock_api
+
+mapping-config.pathMap:
+  /mesh/core:
+    GET:
+      required: id,name
+      cases:
+        - conditions:
+            - {name: "id", operator: "EQUALS", value: "1111"}
+          response:
+            statusCode: 200
+            responsePath: response/core1.json
+            headers:
+              - {headerKey: "serviceId", headerValue: "2222"}
+              - {headerKey: "roleId", headerValue: "1111-01"}
+        - conditions:
+            - {name: "id", operator: "EQUALS", value: "2222"}
+            - {name: "name", operator: "EQUALS", value: "name2"}
+          response:
+            statusCode: 200
+            responsePath: response/core2.json
+            headers:
+              - {headerKey: "serviceId", headerValue: "2222"}
+              - {headerKey: "roleId", headerValue: "1111-02"}
+      defaultResponse:
+        statusCode: 200
+        responsePath: response/core3.json
+        headers:
+          - {headerKey: "serviceId", headerValue: "2222"}
+          - {headerKey: "roleId", headerValue: "1111-01"}
+    POST:
+      defaultResponse:
+        statusCode: 200
+        responsePath: response/core1.json
+  /mesh/book:
+    GET:
+      cases:
+        - conditions:
+            - {name: "id", operator: "EQUALS", value: "1111"}
+          response:
+            statusCode: 200
+            responsePath: response/book1.json
+            headers:
+              - {headerKey: "serviceId", headerValue: "2222"}
+              - {headerKey: "roleId", headerValue: "1111-01"}
+      defaultResponse:
+        statusCode: 200
+        responsePath: response/book2.json
+        headers:
+          - {headerKey: "serviceId", headerValue: "2222"}
+  /mesh/client/{client}:
+    GET:
+      cases:
+        - conditions:
+            - {name: "clientId", operator: "EQUALS", value: "1111"}
+          response:
+            statusCode: 200
+            responsePath: response/client1.json
+            headers:
+              - {headerKey: "roleId", headerValue: "1111-01"}
+      defaultResponse:
+        statusCode: 200
+        responsePath: response/client2.json

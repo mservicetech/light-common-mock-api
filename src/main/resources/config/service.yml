@@ -1,0 +1,11 @@
+# Singleton service factory configuration/IoC injection
+singletons:
+
+  - com.mservicetech.mock.api.data.PathStore:
+      - com.mservicetech.mock.api.data.RAMPathStore
+  - com.mservicetech.mock.api.service.CaseProcessService:
+      - com.mservicetech.mock.api.service.CaseProcessServiceImpl
+
+  # StartupHookProvider implementations, there are one to many and they are called in the same sequence defined.
+  - com.networknt.server.StartupHookProvider:
+      - com.mservicetech.mock.api.MockApiStartupHook

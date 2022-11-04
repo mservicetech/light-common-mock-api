@@ -1,0 +1,219 @@
+openapi: 3.0.0
+info:
+  version: 1.0.0
+  title: Swagger For general Mock API
+  license:
+    name: MIT
+servers:
+  - url: 'http://petstore.swagger.io'
+paths:
+  /mock/create:
+    post:
+      summary: Create a mock API meta data
+      operationId: createMockAPI
+      requestBody:
+        description: the body is for creating mock API config info
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/PathConfig'
+      tags:
+        - mock
+      security:
+        - mock_auth:
+            - 'read:mock'
+            - 'write:mock'
+      responses:
+        "200":
+          description: "Expected response to a valid request"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BuildResult'
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /mock/response/create:
+    post:
+      summary: Create a mock API response data
+      operationId: createMockResponsed
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:      # Request parts
+                responsePath:            # Part 1 (string value)
+                  type: string
+                responseFile:  # Part 2 (an image)
+                  type: string
+                  format: binary
+      tags:
+        - mock
+      security:
+        - mock_auth:
+            - 'read:mock'
+            - 'write:mock'
+      responses:
+        "200":
+          description: "Expected response to a valid request"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BuildResult'
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /mock/api:
+    get:
+      summary: get mock API config
+      operationId: getmockAPI config
+      tags:
+        - mock
+      parameters:
+        - name: path
+          in: query
+          required: true
+          description: The path for the mock api config
+          schema:
+            type: string
+      responses:
+        "200":
+          description: "Expected response to a valid request"
+          content:
+            application/json:
+              schema:
+                type: string
+        default:
+          description: "unexpected error"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+      security:
+        - mock_auth:
+            - 'read:mock'
+            - 'write:mock'
+
+components:
+  securitySchemes:
+    mock_auth:
+      type: oauth2
+      description: This API uses OAuth 2 with the client credential grant flow.
+      flows:
+        clientCredentials:
+          tokenUrl: 'https://localhost:6882/token'
+          scopes:
+            'write:mock': creat mock config info
+            'read:mock': read your mock config
+  schemas:
+    PathConfig:
+      type: object
+      required:
+        - path
+        - method
+      properties:
+        path:
+          type: string
+        method:
+          type: string
+          enum:
+            - GET
+            - POST
+            - PUT
+            - PATCH
+            - DELETE
+        requiredParam:
+          description: requried parameter list, separate by {,}
+          type: string
+          nullable: true
+        defaultResponse:
+          $ref: '#/components/schemas/Response'
+        cases:
+          type: array
+          items:
+            $ref: '#/components/schemas/Case'
+    Case:
+      type: object
+      properties:
+        response:
+          $ref: '#/components/schemas/Response'
+        conditions:
+          type: array
+          items:
+            $ref: '#/components/schemas/Condition'
+    Condition:
+      type: object
+      properties:
+        name:
+          type: string
+          nullable: true
+        jsonPath:
+          type: string
+          nullable: true
+        value:
+          type: string
+          nullable: true
+        operator:
+          $ref: '#/components/schemas/OperatorEum'
+    OperatorEum:
+      type: string
+      enum:
+        - CONTAINS
+        - EQUALS
+    Response:
+      type: object
+      properties:
+        statusCode:
+          type: integer
+          nullable: true
+        responsePath:
+          type: string
+          nullable: true
+        responseBody:
+          type: string
+          nullable: true
+        headers:
+          type: array
+          items:
+            $ref: '#/components/schemas/Header'
+          nullable: true
+    Header:
+      type: object
+      properties:
+        headerKey:
+          type: string
+        headerValue:
+          type: string
+    BuildResult:
+      type: object
+      properties:
+        resultMessage:
+          type: string
+    Error:
+      type: object
+      required:
+        - statusCode
+        - code
+        - message
+        - description
+      properties:
+        statusCode:
+          type: integer
+          format: int32
+        code:
+          type: string
+        message:
+          type: string
+        description:
+          type: string
+
